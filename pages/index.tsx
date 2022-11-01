@@ -1,4 +1,3 @@
-import styles from '../styles/Home.module.css'
 import {GetStaticProps} from "next";
 import axios from "axios";
 import {ChangeEventHandler, useEffect, useRef, useState} from "react";
@@ -35,12 +34,11 @@ export default function Home({data, notFound}: HomeProps) {
     },
     series: [],
   });
-  const chartRef = useRef();
 
   const onChangePrefecture: ChangeEventHandler<HTMLInputElement> = async (ev) => {
     const targetValue = ev.target.value.split(",");
-    let newSeries: SeriesOptionsType[] = options.series;
     if(ev.target.checked){
+      const newSeries: SeriesOptionsType[] = options.series as SeriesOptionsType[];
       const res = await axios.get(
           `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear`, {
             params: {prefCode: targetValue[0], cityCode: "-"},
@@ -53,34 +51,37 @@ export default function Home({data, notFound}: HomeProps) {
       newSeries.push(
           {name: targetValue[1],
             data: newData,
-          }
+          } as SeriesOptionsType
       );
+    setOptions({... options, series: newSeries})
     }
     else{
-       newSeries = options.series?.filter(value => value.name !== targetValue[1])
+      setOptions({...options, series: options.series?.filter(value => value.name !== targetValue[1])});
     }
-    setOptions({...options, series: newSeries});
-    // setTest(test+1);
-    // chartRef.current.chart.redraw();
-    // chartRef.current.chart.destroy();
   }
+  console.log(options)
 
   return (
-    <div className={styles.container}>
-      {data.result.map((prefecture) => {
-        return(
-            <div>
-              <input type="checkbox" value={prefecture.prefCode + "," + prefecture.prefName} onChange={onChangePrefecture}/>
-              <div>{prefecture.prefName}</div>
-            </div>
-        )
-      })}
-      <HighchartsReact
-          allowChartUpdate={true}
-          ref={chartRef}
-          highcharts={Highcharts}
-          options={options}
-      />
+    <div className={"container"}>
+      <h2　className={"title"}>都道府県別総人口グラフ</h2>
+      <div className={"checkbox"}>
+        {data.result.map((prefecture) => {
+          return(
+              <div className={"checkboxItem"}>
+                <input type="checkbox" value={prefecture.prefCode + "," + prefecture.prefName} onChange={onChangePrefecture}/>
+                <div className={"checkboxText"}>{prefecture.prefName}</div>
+              </div>
+          )
+        })}
+      </div>
+      {/*<div>{options.series?.length}</div>*/}
+      <div className={"chart"}>
+        <HighchartsReact
+            allowChartUpdate={true}
+            highcharts={Highcharts}
+            options={options}
+        />
+      </div>
     </div>
   )
 }
