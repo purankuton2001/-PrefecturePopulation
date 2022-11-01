@@ -1,7 +1,9 @@
 import styles from '../styles/Home.module.css'
 import {GetStaticProps} from "next";
 import axios from "axios";
-import {ChangeEventHandler, useEffect, useState} from "react";
+import {ChangeEventHandler, useEffect, useRef, useState} from "react";
+import Highcharts, {SeriesOptionsType, SeriesXrangeOptions, XrangePointOptionsObject} from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 
 type HomeProps = {
   data: {
@@ -10,14 +12,6 @@ type HomeProps = {
   };
   notFound?: boolean;
 }
-type TargetData = {
-  year: number,
-  value: number
-}
-type GraphData = {
-  year: number,
-  [code: string]: number,
-}
 
 export default function Home({data, notFound}: HomeProps) {
   useEffect(() => {
@@ -25,34 +19,50 @@ export default function Home({data, notFound}: HomeProps) {
       alert("APIからのデータ取得に失敗しました")
     }
   }, []);
-  const [graphData, setGraphData] = useState<GraphData[]>([]);
+  const [test, setTest] = useState(0);
+  const [options, setOptions] = useState<Highcharts.Options>({
+    title: {
+      text: '都道府県別総人口'
+    },
+    plotOptions: {
+      series: {
+        label: {
+          connectorAllowed: false,
+        },
+        pointInterval: 5,
+        pointStart: 1965
+      }
+    },
+    series: [],
+  });
+  const chartRef = useRef();
+
   const onChangePrefecture: ChangeEventHandler<HTMLInputElement> = async (ev) => {
-    const targetValue = ev.target.value.split(",")
-    const newGraphData = graphData;
+    const targetValue = ev.target.value.split(",");
+    let newSeries: SeriesOptionsType[] = options.series;
     if(ev.target.checked){
       const res = await axios.get(
           `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear`, {
             params: {prefCode: targetValue[0], cityCode: "-"},
             headers: {'X-API-KEY': 'P4SjAyQ6DjjKZxGxZqcyFwBDdml5uQMyR31twL8M'}
           });
-      res.data.result.data[0].data.forEach((targetData: TargetData) => {
-        const targetIndex = newGraphData.findIndex(d => d.year === targetData.year);
-        if(targetIndex == -1){
-          const newObject: GraphData = {year: targetData.year};
-          newObject[targetValue[1]] = targetData.value;
-          newGraphData.push(newObject);
-        }else{
-          newGraphData[targetIndex][targetValue[1]] = targetData.value;
-        }
+      const newData: XrangePointOptionsObject[] = [];
+      res.data.result.data[0].data.forEach((targetData: any) => {
+        newData.push(targetData.value)
       });
+      newSeries.push(
+          {name: targetValue[1],
+            data: newData,
+          }
+      );
     }
     else{
-      newGraphData.forEach((graphData) => {
-        delete graphData[targetValue[1]]
-      })
+       newSeries = options.series?.filter(value => value.name !== targetValue[1])
     }
-    newGraphData.sort((a, b) => a.year-b.year)
-    setGraphData(newGraphData);
+    setOptions({...options, series: newSeries});
+    // setTest(test+1);
+    // chartRef.current.chart.redraw();
+    // chartRef.current.chart.destroy();
   }
 
   return (
@@ -65,6 +75,12 @@ export default function Home({data, notFound}: HomeProps) {
             </div>
         )
       })}
+      <HighchartsReact
+          allowChartUpdate={true}
+          ref={chartRef}
+          highcharts={Highcharts}
+          options={options}
+      />
     </div>
   )
 }
