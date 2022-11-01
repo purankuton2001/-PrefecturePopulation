@@ -65,9 +65,9 @@ export default function Home({data, notFound}: HomeProps) {
     <div className={"container"}>
       <h2　className={"title"}>都道府県別総人口グラフ</h2>
       <div className={"checkbox"}>
-        {data.result.map((prefecture) => {
+        {data.result.map((prefecture, index) => {
           return(
-              <div className={"checkboxItem"}>
+              <div className={"checkboxItem"} key={index}>
                 <input type="checkbox" value={prefecture.prefCode + "," + prefecture.prefName} onChange={onChangePrefecture}/>
                 <div className={"checkboxText"}>{prefecture.prefName}</div>
               </div>
