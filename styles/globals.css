@@ -22,8 +22,11 @@
   width: 90%;
   margin: auto;
 }
+input {
+  cursor: pointer;
+}
 .checkboxItem {
-  width: 88px;
+  margin-right: 4px;
   display: flex;
   flex-direction: row;
   margin-bottom: 8px;
