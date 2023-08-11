@@ -9,6 +9,14 @@
 .container {
     background: white;
 }
+.selectContainer {
+    position: relative;
+    height: 24px;
+}
+.select{
+    position: absolute;
+    right: 5%;
+}
 .checkbox {
     display: flex;
     flex-direction: row;
