@@ -4,15 +4,7 @@ import { ChangeEventHandler, useEffect, useLayoutEffect, useRef, useState } from
 import Highcharts, {SeriesOptionsType, SeriesXrangeOptions, XrangePointOptionsObject} from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import styles from  "../styles/index.module.css";
-type populationValue = {
-  year: string;
-  value: number;
-  rate?: number;
-}
-type populationValues = {
-  label: string;
-  data: populationValue[];
-}
+
 type fetchedPredfectureData = {
   prefCode: number;
   prefName: string;
