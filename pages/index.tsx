@@ -1,16 +1,16 @@
 import {GetStaticProps} from "next";
 import axios from "axios";
-import { ChangeEventHandler, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import Highcharts, {SeriesOptionsType, SeriesXrangeOptions, XrangePointOptionsObject} from "highcharts";
+import { ChangeEventHandler, useState } from 'react'
+import Highcharts, {SeriesOptionsType, XrangePointOptionsObject} from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import styles from  "../styles/index.module.css";
 
-type fetchedPredfectureData = {
+export type fetchedPrefectureData = {
   prefCode: number;
   prefName: string;
 }
 type HomeProps = {
-  data: {data: fetchedPredfectureData[], key: string};
+  data: {data: fetchedPrefectureData[], key: string};
 }
 
 export default function Home({data: d}: HomeProps) {
@@ -112,6 +112,7 @@ export default function Home({data: d}: HomeProps) {
       </div>
       <div className={styles.chart}>
         <HighchartsReact
+            data-testid={"chart"}
             allowChartUpdate={true}
             highcharts={Highcharts}
             options={options}
