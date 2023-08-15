@@ -68,28 +68,29 @@ export default function Home({data: d}: HomeProps) {
   const onChangeMode: ChangeEventHandler<HTMLSelectElement> = (event) => {
     setMode(Number(event.target.value));
     const newSeries: SeriesOptionsType[] = [] as SeriesOptionsType[];
-    setLoading(true);
-    selectedPref.forEach(async (prefCode, index) => {
-      const newData: XrangePointOptionsObject[] = [];
-      const res = await axios.get(
-        `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear`, {
-          params: {prefCode, cityCode: "-"},
-          headers: {'X-API-KEY': key}
+    if(selectedPref.length){
+      setLoading(true);
+      selectedPref.forEach(async (prefCode, index) => {
+        const newData: XrangePointOptionsObject[] = [];
+        const res = await axios.get(
+          `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear`, {
+            params: {prefCode, cityCode: "-"},
+            headers: {'X-API-KEY': key}
+          });
+        res.data.result.data[event.target.value].data.forEach((targetData: any) => {
+          newData.push(targetData.value)
         });
-      res.data.result.data[mode].data.forEach((targetData: any) => {
-        newData.push(targetData.value)
+        newSeries.push(
+          {name: data.filter(value => value.prefCode === prefCode)[0].prefName,
+            data: newData,
+          } as SeriesOptionsType
+        );
+        if(index === selectedPref.length - 1) {
+          setOptions({... options, series: newSeries});
+          setLoading(false);
+        }
       });
-      newSeries.push(
-        {name: data.filter(value => value.prefCode === prefCode)[0].prefName,
-          data: newData,
-        } as SeriesOptionsType
-      );
-      if(index === selectedPref.length - 1) {
-        setOptions({... options, series: newSeries});
-        setLoading(false);
-      }
-    });
-
+    }
   }
 
   return (
