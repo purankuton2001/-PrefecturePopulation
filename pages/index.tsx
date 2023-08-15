@@ -69,7 +69,7 @@ export default function Home({data: d}: HomeProps) {
     setMode(Number(event.target.value));
     const newSeries: SeriesOptionsType[] = [] as SeriesOptionsType[];
     setLoading(true);
-    selectedPref.forEach(async (prefCode) => {
+    selectedPref.forEach(async (prefCode, index) => {
       const newData: XrangePointOptionsObject[] = [];
       const res = await axios.get(
         `https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear`, {
@@ -84,9 +84,12 @@ export default function Home({data: d}: HomeProps) {
           data: newData,
         } as SeriesOptionsType
       );
+      if(index === selectedPref.length - 1) {
+        setOptions({... options, series: newSeries});
+        setLoading(false);
+      }
     });
-    setOptions({... options, series: newSeries});
-    setLoading(false);
+
   }
 
   return (
